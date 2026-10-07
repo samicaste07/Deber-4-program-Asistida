@@ -1,51 +1,55 @@
-# Respuestas del Taller: Vibe Coding vs. Spec-Driven Development (SDD)
+# Respuestas del Taller
 
----
+1. TABLA DE METRICAS Y CONFIGURACION
 
-## 1. Tabla de Métricas y Configuración del Entorno
 
-### Configuración del Entorno
-- **Agente:** Antigravity / Gemini CLI Agent.
-- **Modelo:** Gemini 2.5 Pro.
-- **Nivel de razonamiento/configuración:** High Reasoning / Extended Thinking (análisis multi-paso con herramientas de código y verificación estática).
-- **Archivo de instrucciones del agente:** [`GEMINI.md`](file:///c:/Proyectos%20flutter/Repo-Samuel/divisor_cuenta/GEMINI.md) (creado en el commit `a9de080`).
-- **Caso de Git (Parte 1.5):** **Caso A** (creación de ramas paralelas independientes `vibe` y `sdd` a partir del commit base limpio del proyecto `5b0849f proyecto base de flutter, sin tocar`).
+Datos de mi entorno:
+- Agente: Antigravity / Gemini CLI
+- Modelo: Gemini 2.5 Pro (con razonamiento alto / extended thinking)
+- Archivo de instrucciones: GEMINI.md
+- Caso de Git que me toco (Parte 1.5): Caso A (cree las dos ramas, vibe y sdd, saliendo desde el commit base inicial 5b0849f).
 
-### Tabla Completa de Métricas
+Tabla de metricas:
 
-| Criterio | rama vibe | rama sdd |
-| :--- | :--- | :--- |
-| **Iteraciones** *(veces que se tuvo que volver a pedir algo)* | 1 *(para corregir el desbordamiento/overflow en pantalla)* | **0** *(la implementación se completó en un solo ciclo guiada por el plan de tareas; 1 si se cuenta la orden de subsanar hallazgos del `/speckit-analyze`)* |
-| **Casos de aceptación que cumple (0–6)** | 6 / 6 *(monto cuenta, núm. personas, propina, total general, división equitativa y validaciones/casos borde en manual)* | **6 / 6** *(100% de los escenarios de aceptación de la spec, validados de forma automatizada)* |
-| **Pruebas automatizadas que pasan** | 1 / 1 *(test básico en `test/widget_test.dart`)* | **38 / 38** *(suite completa: pruebas unitarias de dominio, estrategias, controlador y widgets pasando al 100%)* |
-| **Archivos en `lib/`** | 5 *(`main.dart`, `models.dart`, `quick_split_tab.dart`, `detailed_split_tab.dart`, `formatters.dart`)* | **10** *(`domain/` [5], `data/` [2], `presentation/` [3] + `main.dart` modularizados)* |
-| **Líneas de código en `lib/`** | 2053 | **~565** *(casi 4 veces menos código, conciso y sin redundancias)* |
-| **¿`domain/` depende de Flutter?** | No aplica / No *(no existe carpeta `domain/`, los modelos están en `models/` y son Dart puro)* | **No** *(Dart puro al 100%: 0 imports de `package:flutter` en `lib/domain/`)* |
-| **¿Existe separación presentation/domain/data?** | No *(la lógica de cálculo y estado está acoplada directamente a los widgets en `screens/`)* | **Sí** *(separación estricta Clean Architecture: `presentation -> domain <- data`)* |
-| **¿El agente agregó algo que nadie pidió?** | Sí *(selector de monedas mundiales, división detallada por platos/amigos, botón para copiar a WhatsApp, modo oscuro/claro, redondeo e IVA)* | **No** *(cero sobreingeniería: se ajustó estrictamente a lo pedido en la especificación)* |
-| **¿Se puede agregar otra estrategia sin modificar el cálculo existente?** | No *(cálculos hardcodeados con getters y condicionales en el State; no implementa Strategy Pattern ni OCP)* | **Sí** *(cumple OCP al 100%: basta con crear una nueva clase que implemente `EstrategiaRedondeo`)* |
+Metrica                                      | Rama vibe                | Rama sdd
+---------------------------------------------|--------------------------|-------------------------
+Iteraciones (pedir correcciones)             | 1 (corregir overflow)    | 0 (salio de una con las tareas; 1 si cuento el analyze)
+Casos de aceptacion cumplidos (0 a 6)        | 6 / 6 (probando a mano)  | 6 / 6 (comprobados con tests automaticos)
+Pruebas automatizadas que pasan              | 1 / 1                    | 38 / 38
+Archivos en lib/                             | 5                        | 10
+Lineas de codigo en lib/                     | 2053                     | ~565
+domain/ depende de Flutter?                  | No aplica (no existe)    | No (100% Dart puro, 0 imports de flutter)
+Existe separacion presentation/domain/data?  | No                       | Si (Clean Architecture estricta)
+El agente agrego cosas no pedidas?           | Si (un monton)           | No (se apego a la spec)
+Se puede agregar otra estrategia sin tocarlo?| No (esta con if y enums) | Si (con Strategy Pattern / OCP)
 
-### Análisis de Escenarios, Iteraciones y Decisiones
-- **¿Qué enfoque cumplió mejor los seis escenarios?:** 
-  **`sdd` cumplió mejor y con mayor rigor.** Aunque `vibe` permite calcular en su interfaz, enmascara errores (obliga a mínimo 1 comensal mediante sliders y convierte entradas alfabéticas silenciosamente a `0.0`), impidiendo emitir los mensajes exactos solicitados (*"Debe haber al menos una persona"* y *"Monto inválido"*). `sdd` validó y cumplió de manera estricta y automatizada los 6 escenarios de la especificación.
-- **Decisiones explícitas vs. decisiones que completó el agente:**
-  - *Explícitas (usuario/spec):* Entradas requeridas (monto, personas, propina), modos de redondeo (exacto y hacia arriba), propina inicial en 10% y modo exacto por defecto, mensajes de error literales y condición offline sin dependencias externas.
-  - *Completadas por el agente en `sdd`:* Diseño de arquitectura limpia en 3 capas, definición de interfaces abstractas (`EstrategiaRedondeo`), estructuración de entidades inmutables y controladores desacoplados con inyección de dependencias (`DivisorController`), y suite exhaustiva de pruebas unitarias y de widgets.
-  - *Completadas por el agente en `vibe`:* El agente tomó decisiones no solicitadas por su cuenta, introduciendo tabs adicionales, modelos de división detallada, soporte multimoneda y cálculos tributarios.
-- **Tiempo registrado y por qué no basta como métrica:**
-  - `vibe` se generó en un único prompt rápido (~3-5 minutos).
-  - `sdd` requirió un ciclo metódico de especificación, clarificación, constitución, diseño de tareas e implementación guiada por pruebas (~20-30 minutos).
-  - **Por qué no basta el tiempo:** Medir únicamente el tiempo inicial de desarrollo ("Time to First Code") premia la deuda técnica. `vibe` generó 2053 líneas de código fuertemente acoplado con cero pruebas reutilizables, lo que encarece drásticamente el costo de mantenimiento y depuración a mediano y largo plazo. `sdd` entrega software mantenible, testeable y extensible con especificación formal.
+Que enfoque cumplio mejor los 6 escenarios?
+Para mi cumplio mucho mejor sdd. Aunque en vibe la pantalla se ve bonita y calcula sumas, a la hora de meter casos raros o errores falla porque los esconde (te bloquea el slider para que nunca pongas 0 personas y si escribes texto lo convierte a 0.0 sin avisar). En cambio sdd valida exactamente las cadenas de error pedidas ("Debe haber al menos una persona" y "Monto invalido") y no muestra calculos basura.
 
----
+Cuantas iteraciones necesito cada uno?
+En vibe tuve que pedirle 1 iteracion extra para arreglar desbordamientos en la UI. En sdd la implementacion salio en 0 iteraciones de correccion de codigo, todo paso los tests a la primera siguiendo la lista de tareas (solo hubo 1 paso previo que fue corregir los hallazgos del speckit-analyze antes de codificar).
 
-## 2. Resultados de la Parte 10: Pruebas de `sdd` contra la rama `vibe`
+Decisiones explicitas vs decisiones que completo el agente:
+- Explicitas: los campos que pedia el usuario (monto, personas, propina), los dos modos de redondeo, que arrancara con 10% y modo exacto, los mensajes literales de error y que fuera offline sin paquetes raros.
+- Completadas por el agente: en sdd el agente diseno las 3 capas, la interfaz EstrategiaRedondeo, el controlador y los tests. En vibe el agente se puso creativo por su cuenta y metio soporte para monedas de otros paises, division por platos individuales, switch de tema oscuro y hasta un boton para mandar por WhatsApp.
 
-### ¿Compilaron las pruebas de `sdd` en `vibe`?
-**NO compilaron.** Al ejecutar `flutter test` tras copiar la carpeta `test/` desde `sdd` a `vibe`, el compilador de Dart falló de inmediato con 9 errores de carga.
+Sobre el tiempo:
+Vibe fue mucho mas rapido al principio (salio en unos 3 minutos con un solo prompt), mientras que sdd tomo como 20 o 25 minutos haciendo la especificacion, el plan, las tareas y las pruebas. Pero el tiempo inicial no sirve para decidir cual es mejor: vibe dejo un archivo gigante de mas de 700 lineas sin pruebas donde cualquier cambio futuro va a costar horas de depurar, mientras que sdd dejo un proyecto ordenado, con pruebas que corren en 2 segundos y facil de mantener.
 
-### Primer error obtenido
-```text
+
+======================================================================
+2. PARTE 10: LLEVAR LAS PRUEBAS DE SDD A VIBE
+======================================================================
+
+Hice checkout a vibe y me traje la carpeta test/ de sdd:
+  git checkout vibe
+  git checkout sdd -- test/
+  flutter test
+
+Compilaron?
+No, no compilaron para nada. Salieron 9 errores de carga.
+
+Primer error que salio:
 test/widget/pantalla_divisor_test.dart:3:8: Error: Error when reading 'lib/data/strategies/redondeo_exacto.dart': El sistema no puede encontrar la ruta especificada
 import 'package:divisor_cuenta/data/strategies/redondeo_exacto.dart';
        ^
@@ -55,145 +59,83 @@ import 'package:divisor_cuenta/domain/usecases/calcular_division.dart';
 test/widget/pantalla_divisor_test.dart:11:8: Error: 'DivisorController' isn't a type.
   late DivisorController controlador;
        ^^^^^^^^^^^^^^^^^
-```
 
-### ¿Demuestra un fallo funcional o una diferencia de arquitectura/testabilidad?
-**Demuestra una diferencia de arquitectura y testabilidad, NO un fallo funcional primario.**
-La aplicación en `vibe` puede ejecutarse visualmente y hacer sumas en pantalla, pero su lógica está prisionera dentro de los widgets gráficos (`quick_split_tab.dart`). Al carecer de una capa de dominio desacoplada y de contratos formales, **no es testable de forma aislada**. Las pruebas unitarias no pueden instanciar la lógica de cálculo sin instanciar la UI completa de Flutter.
+Que demuestra este error?
+Demuestra una diferencia de arquitectura y testabilidad, no que la app no funcione. La app vibe corre si le das flutter run, pero como metieron toda la logica adentro de los widgets y no crearon clases ni capas de dominio, no hay forma de probar el calculo por separado. Las pruebas buscan archivos y clases que en vibe directamente no existen.
 
-### Comparativa manual de los 6 escenarios sobre la app
+Comparacion manual de los 6 escenarios en la app:
+- Escenario 1 (100.00, 4 personas, 10% propina, exacto -> 27.50): Pasa en las dos.
+- Escenario 2 (90.00, 3 personas, 0% propina, exacto -> 30.00): Pasa en las dos.
+- Escenario 3 (50.00, 0 personas -> error "Debe haber al menos una persona"): En sdd pasa perfecto. En vibe falla porque el slider no te deja bajar de 1 y nunca muestra ese mensaje de error.
+- Escenario 4 ("abc" en monto -> error "Monto invalido"): En sdd pasa perfecto. En vibe falla porque usa tryParse y si falla pone 0.0 en silencio, no muestra el error.
+- Escenario 5 (10.00, 3 personas, 0% propina, exacto -> 3.33): Pasa en las dos.
+- Escenario 6 (10.00, 3 personas, 0% propina, hacia arriba -> 4.00): Pasa en las dos activando el redondeo por persona.
 
-| Escenario | Entrada | Esperado | Resultado en `vibe` (Manual) | Resultado en `sdd` |
-| :--- | :--- | :--- | :--- | :--- |
-| **1. Reparto normal** | 100.00, 4 pers, 10% propina, exacto | `27.50` | Muestra `$27.50` (PASA) | `27.50` (PASA) |
-| **2. Sin propina** | 90.00, 3 pers, 0% propina, exacto | `30.00` | Muestra `$30.00` (PASA) | `30.00` (PASA) |
-| **3. Cero personas** | 50.00 y 0 personas | Error: `"Debe haber al menos una persona"`, sin resultado | **FALLA:** El slider tiene mínimo de 1; no permite ingresar 0 ni muestra el error. | Muestra error exacto y oculta resultado (PASA) |
-| **4. Monto no numérico** | `"abc"` en monto | Error: `"Monto inválido"`, sin resultado | **FALLA:** Convierte en silencio a `0.0` y calcula en cero sin avisar. | Muestra error exacto y oculta resultado (PASA) |
-| **5. Redondeo exacto** | 10.00, 3 pers, 0% propina, exacto | `3.33` | Muestra `$3.33` (PASA) | `3.33` (PASA) |
-| **6. Redondeo hacia arriba** | 10.00, 3 pers, 0% propina, hacia arriba | `4.00` | Muestra `$4.00` (PASA) | `4.00` (PASA) |
 
----
+======================================================================
+3. VERIFICACIONES DE SOLID (PARTE 9.5)
+======================================================================
 
-## 3. Verificaciones de SOLID (Parte 9.5) y Constitución
+Comando 1: grep -rn "package:flutter" lib/domain/
+- En sdd: no sale nada (salida limpia). Cumple la Regla 1 de la Constitution (Dominio puro en Dart, sin Flutter).
+- En vibe: no existe domain/, y si corres grep en lib/ sale que main.dart, quick_split_tab.dart y detailed_split_tab.dart importan flutter. La logica depende 100% del framework (viola DIP).
 
-### Evidencia de comandos ejecutados
-
-#### 1. Inversión de Dependencias (DIP) y Dominio Puro
-**Comando:** `grep -rn "package:flutter" lib/domain/` (o en `vibe`: `lib/`)
-
-- **En `sdd`:**
-  ```bash
-  $ grep -rn "package:flutter" lib/domain/
-  # Salida limpia (cero coincidencias)
-  ```
-- **En `vibe`:**
-  ```bash
-  $ grep -rn "package:flutter" lib/
-  lib/main.dart:1:import 'package:flutter/material.dart';
-  lib/screens/detailed_split_tab.dart:1:import 'package:flutter/material.dart';
-  lib/screens/detailed_split_tab.dart:2:import 'package:flutter/services.dart';
-  lib/screens/quick_split_tab.dart:1:import 'package:flutter/material.dart';
-  lib/screens/quick_split_tab.dart:2:import 'package:flutter/services.dart';
-  ```
-- **Regla de la Constitution:**
-  - **Regla I (Pure Dart Domain):** La capa `domain/` no debe tener acoplamiento con ningún framework de presentación (`package:flutter`). Permite ejecutar pruebas unitarias a velocidad nativa sin el motor de Flutter.
-
-#### 2. Punto Único de Composición (Composition Root - DIP)
-**Comando:** `grep -rn -E "RedondeoExacto\(\)|RedondeoHaciaArriba\(\)" lib/`
-
-- **En `sdd`:**
-  ```bash
+Comando 2: grep -rn -E "RedondeoExacto\(\)|RedondeoHaciaArriba\(\)" lib/
+- En sdd:
   lib/main.dart:17:  final redondeoExacto = RedondeoExacto();
   lib/main.dart:18:  final redondeoHaciaArriba = RedondeoHaciaArriba();
-  ```
-  *(Aparece ÚNICAMENTE en `lib/main.dart`).*
-- **En `vibe`:**
-  No existen estas clases; la lógica está acoplada mediante un `enum RoundingOption` en el widget.
-- **Regla de la Constitution:**
-  - **Regla II (Dependency Inversion & Composition Root):** Las implementaciones concretas solo se instancian en `main.dart` para inyectarse hacia las capas superiores.
+  Sale UNICAMENTE en main.dart. Cumple la Regla 2 de la Constitution (Composition Root: solo main instancia clases concretas para inyectarlas).
+- En vibe: no sale nada porque no existen esas clases, usan un enum con ifs adentro de la pantalla.
 
-#### 3. Abierto/Cerrado y Sustitución de Liskov (OCP / LSP)
-**Comando:** `grep -n -E "is Redondeo|as Redondeo" lib/domain/calcular_division.dart`
+Comando 3: grep -n -E "is Redondeo|as Redondeo" lib/domain/calcular_division.dart
+- En sdd: no sale nada. CalcularDivision recibe EstrategiaRedondeo y la usa directamente sin fijarse que tipo es ni hacer casts. Cumple OCP y LSP (Regla 3 de la Constitution).
+- En vibe: adentro de quick_split_tab.dart tienen if (_rounding == RoundingOption.ceilPerPerson) else if ..., lo que rompe OCP porque para meter otro modo hay que modificar el codigo viejo.
 
-- **En `sdd`:**
-  ```bash
-  # Salida limpia (cero coincidencias)
-  ```
-  `CalcularDivision` opera exclusivamente sobre la abstracción `EstrategiaRedondeo`. No pregunta tipos con `is` ni realiza casteos con `as`.
-- **En `vibe`:**
-  En `quick_split_tab.dart` la función `_perPersonAmount` contiene:
-  ```dart
-  if (_rounding == RoundingOption.ceilPerPerson) { ... } else if (...) { ... }
-  ```
-  Viola OCP porque agregar una estrategia exige modificar el código existente.
-- **Regla de la Constitution:**
-  - **Regla III (OCP via Strategy Pattern):** Extensibilidad mediante polimorfismo sin modificar los casos de uso existentes.
+Comando 4: grep -n -E "toStringAsFixed|invalido|al menos una persona" lib/domain/calcular_division.dart
+- En sdd: no sale nada. CalcularDivision solo calcula numeros, no formatea texto ni valida strings. Cumple SRP.
+- En vibe: en un solo archivo de 720 lineas hacen la validacion, los calculos, el formato con signos de pesos y los widgets.
 
-#### 4. Responsabilidad Única (SRP)
-**Comando:** `grep -n -E "toStringAsFixed|inválido|al menos una persona" lib/domain/calcular_division.dart`
 
-- **En `sdd`:**
-  ```bash
-  # Salida limpia (cero coincidencias)
-  ```
-  `CalcularDivision` solo realiza cálculos numéricos. El formateo lo hace `FormateadorMoneda` y la validación la realiza `ValidarEntrada`.
-- **En `vibe`:**
-  La clase `_QuickSplitTabState` valida, calcula, formatea cadenas y pinta la pantalla en un solo archivo de 722 líneas, violando SRP.
+======================================================================
+4. PREGUNTAS DE SPECKIT-CLARIFY
+======================================================================
 
----
+La pregunta clave que salio en el speckit-clarify fue:
+"Q: Que valores iniciales deben tener la propina y el modo de redondeo al abrir la app?
+ A: Propina en 10% y modo de redondeo 'Exacto' seleccionados por defecto."
 
-## 4. Preguntas de `/speckit-clarify`
+Que ambiguedad destapo?
+Destapo que la descripcion original no decia como debia arrancar la pantalla cuando el usuario la abre por primera vez (si la propina debia estar en blanco, en 0 o con valor tipico, y que boton de redondeo debia estar marcado). Sin esa pregunta, cada programador o agente habria hecho lo que se le diera la gana.
 
-En la sesión de clarificación de SDD, se destacó la siguiente pregunta clave documentada en [`spec.md`](file:///c:/Proyectos%20flutter/Repo-Samuel/divisor_cuenta/specs/001-dividir-cuenta/spec.md):
+Quien tomo esas decisiones en la rama vibe?
+El agente las tomo completamente por su cuenta sin preguntarme nada. Decidio poner 2 personas por defecto, un slider, selector de monedas internacionales y asumir 0.0 si habia errores.
 
-1. **Pregunta relevante:**
-   > *Q: ¿Qué valores iniciales deben tener la propina y el modo de redondeo al abrir la app?*
-   > *A: Propina en 10% y modo de redondeo "Exacto" seleccionados por defecto.*
-   - **Ambigüedad destapada:** La descripción inicial del usuario no especificaba el estado inicial de la interfaz al iniciar la aplicación (si la propina debía aparecer vacía, en 0% o con una tasa estándar, y si algún modo de redondeo debía estar premarcado).
-   - Sin esta clarificación, un desarrollador podría haber dejado el campo vacío obligando a teclearlo cada vez, o haber preseleccionado una opción distinta.
 
-2. **Segunda ambigüedad evitada por la especificación:**
-   - La especificación definió explícitamente los mensajes literales de validación (*"Monto inválido"* y *"Debe haber al menos una persona"*) y la regla de negocio de suprimir la visualización del resultado ante cualquier error.
+======================================================================
+5. GIT DIFF VIBE SDD --STAT Y FUNCIONALIDADES NO PEDIDAS
+======================================================================
 
-### ¿Quién tomó esas decisiones en la rama `vibe`?
-**El agente las tomó por su cuenta sin consultar al usuario.**
-En `vibe`, el agente asumió arbitrariamente iniciar con 2 personas, selector de propina en botones fijos, monedas internacionales por defecto y absorción silenciosa de errores en lugar de validar.
+Corri el comando:
+  git diff vibe sdd --stat
 
----
+Y se ve clarito que la rama vibe agrego un monton de cosas que nadie pidio:
+- lib/screens/detailed_split_tab.dart: un archivo entero de 920 lineas para repartir la cuenta plato por plato asignando comida a amigos con colores.
+- lib/models/models.dart: agrego una clase CurrencyOption con 8 monedas (dolares, euros, soles, libras, quetzales, colones, bolivares, reales).
+- En quick_split_tab.dart metio calculo de impuestos/IVA (taxPercentage = 16.0).
+- Metio un boton para copiar un texto formateado para mandar a WhatsApp.
+- Metio cambio de modo oscuro y claro.
 
-## 5. Análisis de `git diff vibe sdd --stat` y Scope Creep
+En cambio sdd solo tiene los archivos necesarios para resolver lo que se pidio: pantalla unica con monto, personas, propina, selector de redondeo y resultado/errores. Cero cosas inventadas.
 
-Al ejecutar `git diff vibe sdd --stat`:
 
-```text
-lib/models/models.dart              |   53 --
-lib/screens/detailed_split_tab.dart |  920 ---------------------
-lib/screens/quick_split_tab.dart    |  722 ----------------
-lib/utils/formatters.dart           |  112 ---
-```
+======================================================================
+6. OTRAS HERRAMIENTAS SDD Y CUANDO ELEGIR VIBE
+======================================================================
 
-### Funcionalidades agregadas que nadie pidió (Scope Creep)
-La rama **`vibe`** agregó una enorme cantidad de código y módulos no solicitados:
-1. **División detallada de ítems (`detailed_split_tab.dart` - 920 líneas):** Una vista entera para asignar platos específicos a amigos con colores individuales y cálculo por ítem.
-2. **Selector de monedas internacionales (`CurrencyOption` en `models.dart`):** Soporte para 8 tipos de moneda (USD, EUR, PEN, GBP, GTQ, CRC, BOB, BRL).
-3. **Cálculo de impuestos / IVA (`_includeTax`, `_taxPercentage = 16.0`):** Añadido arbitrariamente en el flujo de cálculo.
-4. **Compartir en WhatsApp (`_copyToClipboard`):** Generación de resúmenes formateados para portapapeles.
-5. **Tema oscuro dinámico (`_themeMode`):** Switch de cambio de interfaz visual.
+Sobre las herramientas alternativas:
+Elegi OpenSpec. La diferencia con Spec Kit es que Spec Kit esta pensado para guiar al desarrollador en la terminal con comandos interactivos (/speckit-specify, /speckit-plan, /speckit-tasks), mientras que OpenSpec es un formato mas estandarizado en YAML/JSON que se usa para definir contratos y especificaciones que puedan leer sistemas de CI/CD, linters automaticos o equipos grandes que usan distintos lenguajes (por ejemplo si unos hacen backend en Go y otros la app en Flutter).
+La preferiria en un proyecto de empresa grande con varios equipos donde necesitas que la especificacion se valide automaticamente en el pipeline de GitHub o GitLab antes de fusionar ramas.
 
-La rama **`sdd`** se mantuvo estrictamente dentro del alcance: una pantalla única, limpia, con monto, personas, propina, selector de redondeo y resultado. Cero sobreingeniería.
-
----
-
-## 6. Alternativas a Spec Kit y Cuándo Usar Vibe Coding
-
-### Alternativa: OpenSpec
-- **Diferencia con Spec Kit:**
-  - Mientras que **Spec Kit** está diseñado como un conjunto de habilidades e instrucciones para guiar el diálogo iterativo con agentes de IA mediante comandos slash (`/speckit-specify`, `/speckit-plan`, `/speckit-implement`), **OpenSpec** es un marco declarativo más formal basado en esquemas estandarizados (JSON Schema / YAML) agnósticos de la herramienta de IA.
-  - OpenSpec se enfoca en la interoperabilidad en pipelines de CI/CD corporativos, validación automática mediante linters y generación de contratos contractuales entre múltiples servicios.
-- **En qué situación la preferiría:**
-  - En proyectos corporativos multi-equipo donde diferentes equipos desarrollan el backend (e.g. en Go o Java) y el frontend (Flutter), requiriendo un contrato común de especificación versionado en un repositorio central y verificado en pipelines automatizados de auditoría y compliance.
-
-### Situación real donde es razonable elegir Vibe Coding en lugar de SDD
-- **Prototipado rápido desechable en un Hackathon (Spikes / MVP de 24 horas):**
-  - **Contexto:** Se necesita validar visualmente una idea de negocio ante posibles clientes o inversores en una feria en pocas horas.
-  - **Por qué tiene sentido:** En este escenario, la velocidad para obtener una interfaz atractiva y táctil en pantalla es la máxima prioridad. No habrá mantenimiento a largo plazo ni equipos trabajando sobre el código. Si la idea se aprueba, el prototipo visual se descarta (*throwaway prototype*) y se construye la versión de producción bajo principios SDD y Clean Architecture.
+Situacion real y pequena donde si conviene vibe coding:
+En una hackathon de un fin de semana o cuando necesitas hacer un prototipo desechable en 2 horas para mostrarle una idea visual a un cliente o inversionista.
+Ahi no te importa la arquitectura ni las pruebas a largo plazo porque lo unico que necesitas es que se vea bien en pantalla rapido para validar si la idea gusta. Si gusta y se aprueba el proyecto, ese codigo se bota a la basura y se programa bien desde cero con SDD.
