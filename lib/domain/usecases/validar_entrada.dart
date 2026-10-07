@@ -13,7 +13,7 @@ class ValidarEntrada {
   /// - Errores: No arroja excepciones; encapsula el error en un mensaje claro.
   String? validarMonto(String? texto) {
     if (texto == null) return 'Monto inválido';
-    final limpio = texto.trim().replaceAll(',', '.');
+    final limpio = _normalizarTextoDecimal(texto);
     if (limpio.isEmpty) return 'Monto inválido';
 
     final valor = double.tryParse(limpio);
@@ -51,7 +51,7 @@ class ValidarEntrada {
   /// - Errores: No arroja excepciones.
   String? validarPropina(String? texto) {
     if (texto == null) return null;
-    final limpio = texto.trim().replaceAll(',', '.');
+    final limpio = _normalizarTextoDecimal(texto);
     if (limpio.isEmpty) return null;
 
     final valor = double.tryParse(limpio);
@@ -62,6 +62,11 @@ class ValidarEntrada {
       return 'La propina no puede superar el 100%';
     }
     return null;
+  }
+
+  /// Normaliza una cadena de texto numérico eliminando espacios en blanco y sustituyendo comas por puntos decimales.
+  String _normalizarTextoDecimal(String texto) {
+    return texto.trim().replaceAll(',', '.');
   }
 
   /// Valida conjuntamente las entradas requeridas para el cálculo de la división.
