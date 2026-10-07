@@ -58,6 +58,9 @@ class ValidarEntrada {
     if (valor == null || valor.isNaN || valor.isInfinite || valor < 0) {
       return 'Propina inválida';
     }
+    if (valor > 100) {
+      return 'La propina no puede superar el 100%';
+    }
     return null;
   }
 
