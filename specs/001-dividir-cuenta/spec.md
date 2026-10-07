@@ -31,21 +31,7 @@ Como comensal en un restaurante, quiero ingresar el monto total de la cuenta, la
 
 ---
 
-### User Story 2 - Redondeo hacia Arriba al Entero más Cercano (Priority: P2)
-
-Como usuario que prefiere pagar con billetes redondos o simplificar el cobro en efectivo, quiero seleccionar la opción de redondear hacia arriba al entero más cercano para evitar centavos sueltos.
-
-**Why this priority**: Permite flexibilidad en pagos en efectivo y satisface la regla de negocio de estrategias de redondeo sin alterar el flujo principal.
-
-**Independent Test**: Puede probarse seleccionando el modo hacia arriba y verificando que valores fraccionarios se eleven al entero inmediato superior por persona.
-
-**Acceptance Scenarios**:
-
-1. **Given** un monto de 10.00, 3 personas, 0% de propina y modo de redondeo hacia arriba, **When** el usuario presiona "Calcular", **Then** el sistema muestra "4.00" como monto por persona.
-
----
-
-### User Story 3 - Validación de Entradas y Manejo de Errores (Priority: P1)
+### User Story 2 - Validación de Entradas y Manejo de Errores (Priority: P1)
 
 Como usuario, quiero recibir retroalimentación clara e inmediata si ingreso datos erróneos o incompletos para corregirlos sin que la aplicación falle ni muestre cálculos incorrectos.
 
@@ -57,6 +43,20 @@ Como usuario, quiero recibir retroalimentación clara e inmediata si ingreso dat
 
 1. **Given** un monto de 50.00 y 0 personas, **When** el usuario presiona "Calcular", **Then** el sistema muestra el mensaje de error "Debe haber al menos una persona" y NO muestra ningún resultado de cálculo.
 2. **Given** un monto con valor "abc", **When** el usuario presiona "Calcular", **Then** el sistema muestra el mensaje de error "Monto inválido" y NO muestra ningún resultado de cálculo.
+
+---
+
+### User Story 3 - Redondeo hacia Arriba al Entero más Cercano (Priority: P2)
+
+Como usuario que prefiere pagar con billetes redondos o simplificar el cobro en efectivo, quiero seleccionar la opción de redondear hacia arriba al entero más cercano para evitar centavos sueltos.
+
+**Why this priority**: Permite flexibilidad en pagos en efectivo y satisface la regla de negocio de estrategias de redondeo sin alterar el flujo principal.
+
+**Independent Test**: Puede probarse seleccionando el modo hacia arriba y verificando que valores fraccionarios se eleven al entero inmediato superior por persona.
+
+**Acceptance Scenarios**:
+
+1. **Given** un monto de 10.00, 3 personas, 0% de propina y modo de redondeo hacia arriba, **When** el usuario presiona "Calcular", **Then** el sistema muestra "4.00" como monto por persona.
 
 ---
 
