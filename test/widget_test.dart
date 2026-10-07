@@ -1,30 +1,35 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:divisor_cuenta/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Bill splitter smoke test and quick split verification', (WidgetTester tester) async {
+    await tester.pumpWidget(const BillSplitterApp());
+    await tester.pumpAndSettle();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verify title and main elements
+    expect(find.text('Divisor de Cuenta'), findsOneWidget);
+    expect(find.text('TOTAL POR PERSONA'), findsOneWidget);
+    expect(find.text('División Rápida'), findsOneWidget);
+    expect(find.text('Por Consumo'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Enter bill amount
+    final amountField = find.byType(TextField).first;
+    await tester.enterText(amountField, '100');
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify that calculations updated:
+    // With 100 base, 10% tip, 2 people:
+    // Total = 110, Per person = 55
+    expect(find.text('\$55.00'), findsOneWidget);
+
+    // Switch to Detailed Tab
+    await tester.tap(find.text('Por Consumo'));
+    await tester.pumpAndSettle();
+
+    // Verify detailed split screen elements
+    expect(find.text('TOTAL DE LA CUENTA'), findsOneWidget);
+    expect(find.textContaining('Amigos'), findsOneWidget);
+    expect(find.text('Samuel'), findsAtLeastNWidgets(1));
   });
 }
