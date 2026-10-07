@@ -1,0 +1,2 @@
+export 'entities/resultado.dart';
+
