@@ -33,14 +33,12 @@ void main() {
 class AppDivisor extends StatelessWidget {
   final DivisorController? controlador;
 
-  const AppDivisor({
-    super.key,
-    this.controlador,
-  });
+  const AppDivisor({super.key, this.controlador});
 
   @override
   Widget build(BuildContext context) {
-    final ctrl = controlador ??
+    final ctrl =
+        controlador ??
         DivisorController(
           calcularDivision: CalcularDivision(),
           validarEntrada: ValidarEntrada(),
