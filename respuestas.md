@@ -53,7 +53,7 @@ Que hace flutter build: compila el código generando el eejecutable nativo de an
 
 ## Pregunta 2
 
-![](parte3_rojo.png)
+![](evidencias/parte3_rojo.png)
 
 Hubo un fallo en la línea 50 de test/casos_de_prueba.dart que nos muestra el valor esperado y el que realmente se puso.
 
@@ -77,7 +77,7 @@ En este proyecto usé CI para verificar cada PR con priebas y linter y CD cuando
 
 ## Pregunta 4 
 
-! [](parte3_merge_bloqueado.png)
+![](evidencias/parte3_merge_bloqueado.png)
 
 Esto evita que el código defectuoso que tenga errores de cálculo o si no pasa las pruebas entre a la rama main lo que evita que si se está haciendo un proyecto entre varias personas estas descarguen código que no compila
 
@@ -100,3 +100,9 @@ Ejemplo de error que pasa en verde: Si se le pone texto al botón de cálculo y 
 ## Pregunta 7
 
 El pipeline detectó que los jobs de GitHub Actions corren en entornos aislados ya que cuando se creó el job de entrega, este no tenía acceso al APK que el mismo job genera a menos que se corriera el job 2 veces o se transfiera por artifacts.
+
+## Evidencias
+- Parte 1 (CI Verde inicial): ![](evidencias/parte1_ci_verde.png)
+- Parte 2 (Protección de main): ![](evidencias/parte2_proteccion.png)
+- Parte 3 (Verde recuperado): ![](evidencias/parte3_verde_otra_vez.png)
+- Parte 4 (Artifact APK publicado): ![](evidencias/parte4_artifact.png)
