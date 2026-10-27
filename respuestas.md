@@ -88,3 +88,15 @@ El agente sugirió que usar channel: 'stable' es frágil ´prque si se actualiza
 Yo aceptaría la de ponerle un límite de tiempo ya que esto evita que el pipeline se roompa solo o se gaste mucho tiempo si es que se congela.
 
 Rechacé la de cambiar channel: 'stable' por una versión fija, ya que en la parte número 1 del deber dice que se use la versipon estable de Flutter y no agregue nada más 
+
+## Pregunta 6
+
+Que garantiza: que la sintaxis sea correcta, que el código compila y que se pasaron las pruebas automatizadas que se escribieron por mi
+
+Que no detecta: No detecta errores cisuales de interfaz ni la lentitud en dispositivos reales ni los casos que no se hayan especificado en los test
+
+Ejemplo de error que pasa en verde: Si se le pone texto al botón de cálculo y que el texto sea blanco mientras que el fonde del botón también. A su vez que el fondo de la aplicación también es blanco.
+
+## Pregunta 7
+
+El pipeline detectó que los jobs de GitHub Actions corren en entornos aislados ya que cuando se creó el job de entrega, este no tenía acceso al APK que el mismo job genera a menos que se corriera el job 2 veces o se transfiera por artifacts.
